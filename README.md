@@ -1,141 +1,127 @@
 # TOGETHERISH: MIND THE GAP
 
-> Petualangan platformer 2D bergaya pixel-art. Kumpulkan relic, buka kemampuan lompatan, hindari rintangan, dan capai gerbang keluar!
+> Platformer 2D berbasis Unity dengan tiga level, mekanik long jump, air dash, checkpoint, hazard, dan progres misi yang dibangun untuk kebutuhan proyek UAS game.
 
 ![TOGETHERISH - Main Menu](Assets/Backgrounds/TOGETHERISH_MainMenu_4K.png)
 
-## 📖 Tentang Game
+## Tentang Project
 
-**TOGETHERISH: MIND THE GAP** adalah prototype game platformer 2D bertema lembah es yang menantang pemain untuk menjelajahi level, mengumpulkan item penting, dan melewati berbagai rintangan.
+**TOGETHERISH: MIND THE GAP** adalah game platformer 2D bertema petualangan antar dunia. Pemain mengendalikan karakter **Ninja Girl** dalam misi mengumpulkan dua item utama, membuka kemampuan baru, melewati jebakan, dan mencapai gerbang keluar pada setiap level.
 
-Pemain mengendalikan karakter **Ninja Girl** untuk mengumpulkan Kunci Kristal dan Relik Es, mengaktifkan checkpoint, serta membuka kemampuan _Long Jump_ yang membantu melewati celah dan duri hingga mencapai gerbang EXIT.
+Game ini dirancang sebagai prototype edukasi/akademik dengan integrasi sistem menu, progres level, hazard, checkpoint, HUD, dan level select. Selain itu, repository juga mencantumkan komponen jaringan awal berbasis Unity Netcode (`NetworkCatPlayer.cs`) sebagai fondasi untuk pengembangan online di masa depan, namun fitur multiplayer aktif belum menjadi bagian utama gameplay saat ini.
 
-## ✨ Fitur Utama
+## Fitur Utama
 
-- **Main Menu** — pilihan Play, Level Select, Options, dan Quit.
-- **Visual UHD** — artwork menu beresolusi 3840 × 2160 dan background panorama pada level.
-- **Platformer 2D** — pergerakan kiri dan kanan serta lompatan normal.
-- **Long Jump** — kemampuan lompatan tambahan dengan sistem charge.
-- **Collectible dan Checkpoint** — dua item utama yang mengaktifkan checkpoint dan titik respawn.
-- **Efek Visual** — animasi pengambilan item, partikel, dan popup kemampuan.
-- **Mission HUD** — tampilan progres misi dan jumlah charge.
-- **Hazard System** — duri dan jatuh dari map akan mengembalikan pemain ke checkpoint terakhir.
-- **Victory Screen** — layar kemenangan dengan ringkasan collectible, tombol main lagi, dan kembali ke menu.
+- Main Menu dengan pilihan Play, Level Select, Options, dan Quit
+- Level Select untuk Level 1 sampai Level 3
+- Platformer 2D dengan gerak kiri/kanan, lompat dasar, long jump, dan air dash
+- Sistem checkpoint dan respawn otomatis
+- Koleksi item misi: Kunci Kristal dan Relik Es
+- Hazard berupa duri, jatuh dari map, platform berbahaya, serta patrol hazard
+- HUD permainan yang menampilkan level, checkpoint, item, dan charge skill
+- Pause menu dan layar kemenangan
+- Tema visual berbeda untuk setiap level: ice valley, dune ruins, mushroom citadel
 
-## 🎮 Kontrol Permainan
+## Gameplay Loop
 
-| Aksi                           | Tombol                                |
-| ------------------------------ | ------------------------------------- |
-| Bergerak ke kiri               | A atau ←                              |
-| Bergerak ke kanan              | D atau →                              |
-| Lompatan normal                | Space, W, atau ↑                      |
-| Long Jump                      | Tahan Shift, lalu tekan tombol lompat |
-| Main lagi setelah menang       | R atau tombol MAIN LAGI               |
-| Kembali ke menu setelah menang | M atau tombol MENU UTAMA              |
+1. Pemain memulai dari menu utama.
+2. Pilih level atau langsung masuk Level 1.
+3. Kumpulkan Kunci Kristal dan Relik Es.
+4. Gunakan long jump dan air dash untuk melewati celah, duri, platform, dan jebakan.
+5. Jika terkena hazard, pemain akan respawn ke checkpoint terakhir.
+6. Setelah item misi lengkap, pemain mencapai EXIT untuk menyelesaikan level.
 
-**Catatan:** Long Jump tersedia setelah checkpoint pertama diaktifkan. Setiap checkpoint baru mengisi ulang charge Long Jump menjadi 3.
+## Kontrol
 
-## 🚀 Cara Menjalankan Project
+| Aksi | Tombol |
+| --- | --- |
+| Bergerak kiri | A atau Left Arrow |
+| Bergerak kanan | D atau Right Arrow |
+| Lompat normal | Space, W, atau Up Arrow |
+| Long Jump | Tahan Shift lalu tekan tombol lompat di tanah |
+| Air Dash | Tahan Shift lalu tekan tombol lompat di udara |
+| Pause / resume | Escape atau P |
+| Restart level | R |
+| Kembali ke menu | M |
+| Level berikutnya | N |
 
-### Persyaratan
+Catatan: Long Jump terbuka setelah item pertama didapatkan dan memiliki 3 charge. Air Dash terbuka setelah item kedua didapatkan dan hanya dapat digunakan sekali tiap kali melompat.
+
+## Persyaratan
 
 - Unity Hub
-- Unity Editor versi **6.6.3f1**
-- Sistem operasi yang mendukung Unity Editor
+- Unity Editor versi 6.6.3f1
+- Sistem operasi yang mendukung Unity
 
-### Langkah Menjalankan
+## Cara Menjalankan
 
-1. Clone atau unduh repository project dari GitHub.
+1. Clone atau unduh repository ini.
 2. Buka Unity Hub.
-3. Pilih **Add** atau **Add project from disk**.
-4. Pilih folder utama project `TOGETHERISH: MIND THE GAP`.
-5. Buka project menggunakan Unity Editor versi yang sesuai.
-6. Tunggu proses import asset dan kompilasi selesai.
+3. Pilih Add project from disk.
+4. Arahkan ke folder project `Project Game UAS`.
+5. Buka project menggunakan Unity Editor yang kompatibel.
+6. Tunggu import asset dan kompilasi selesai.
 7. Buka scene `Assets/Main Menu.unity` jika belum terbuka.
-8. Tekan tombol **Play** pada Unity Editor.
-9. Pilih **PLAY** pada menu utama untuk memulai Level 1.
+8. Tekan tombol Play untuk menjalankan game.
+9. Pilih PLAY untuk mulai Level 1 atau pilih LEVEL SELECT untuk memilih level tertentu.
 
-> **Penting:** UI menu dirender saat game berjalan. Karena itu, tampilan Game View mungkin terlihat kosong atau hanya menampilkan warna kamera sebelum tombol Play ditekan.
+> Penting: menu UI dibuat agar bisa berjalan langsung saat project dibuka di Unity. Jika Game View terlihat kosong saat pertama kali, biasanya itu berarti menunggu input dari menu atau scene utama belum dimuat.
 
-### Konfigurasi Scene
+## Scene Utama
 
-Scene yang digunakan dalam project:
+- `Assets/Main Menu.unity` — menu utama
+- `Assets/Scenes/SampleScene.unity` — Level 1 (Icebound)
+- `Assets/Scenes/Level2.unity` — Level 2 (Dune Runner)
+- `Assets/Scenes/Level3.unity` — Level 3 (Moonlit Mushroom Citadel)
 
-- `Assets/Main Menu.unity` — scene menu utama.
-- `Assets/Scenes/SampleScene.unity` — scene gameplay Level 1.
-
-Scene menu utama telah dikonfigurasi sebagai scene pertama dalam `EditorBuildSettings`.
-
-## 🏆 Panduan Misi Level 1
-
-1. Mulai permainan dari platform di sisi kiri.
-2. Ambil **Kunci Kristal** pada checkpoint pertama untuk membuka kemampuan Long Jump I.
-3. Ambil **Relik Es** pada checkpoint kedua untuk membuka Long Jump II.
-4. Gunakan kombinasi Shift + tombol lompat untuk melewati celah dan duri.
-5. Jika terkena duri atau jatuh dari map, karakter akan kembali ke checkpoint terakhir.
-6. Setelah kedua collectible terkumpul, capai gerbang **EXIT** untuk menyelesaikan level.
-
-## 📁 Struktur Project
+## Struktur Project
 
 ```text
-TOGETHERISH-MIND-THE-GAP/
+Project Game UAS/
 ├── Assets/
-│   ├── Animations/
-│   │   └── NinjaGirl/
 │   ├── Backgrounds/
-│   │   ├── TOGETHERISH_MainMenu_4K.png
-│   │   └── Level1_Icebound_Dusk.png
-│   ├── Prefabs/
-│   │   └── NinjaGirlPlayer.prefab
+│   ├── Editor/
 │   ├── Scenes/
-│   │   └── SampleScene.unity
 │   ├── Scripts/
-│   │   ├── Level1MainMenu.cs
-│   │   ├── NinjaGirlController.cs
-│   │   ├── GameProgressManager.cs
-│   │   ├── CheckpointTrigger.cs
-│   │   ├── HazardTrigger.cs
-│   │   └── FinishTrigger.cs
-│   └── Main Menu.unity
+│   ├── Welcome/
+│   └── ...
 ├── Packages/
 ├── ProjectSettings/
 ├── README.md
-└── SRS.md
+├── SRS.md
+├── Project Game UAS.slnx
+├── .gitignore
+├── .gitattributes
+└── UserSettings/
 ```
 
-_Struktur di atas menampilkan folder dan file utama yang didokumentasikan, bukan seluruh isi project._
+## Teknologi yang Digunakan
 
-## 🛠️ Teknologi yang Digunakan
+| Teknologi | Kegunaan |
+| --- | --- |
+| Unity 6.6.3f1 | Game engine utama |
+| C# | Bahasa pemrograman |
+| Unity Input System | Input keyboard dan kontrol gameplay |
+| Unity 2D Physics | Collider, rigidbody, platform, dan hazard |
+| Unity Netcode | Pondasi untuk pengembangan fitur online/multiplayer |
 
-| Teknologi                    | Kegunaan                              |
-| ---------------------------- | ------------------------------------- |
-| Unity 6.6.3f1                | Game engine                           |
-| C#                           | Bahasa pemrograman                    |
-| Unity Input System           | Pengelolaan input pemain              |
-| Universal Render Pipeline 2D | Rendering grafis 2D                   |
-| Unity 2D Physics             | Fisika, collider, dan interaksi objek |
+## Status Project
 
-## 📌 Cakupan Prototype
+Project saat ini berada dalam status prototype/fase pengembangan awal dengan fokus pada gameplay single-player dan mekanik platformer. Fitur online, lobby, matchmaking, serta integrasi server/relay belum menjadi kebutuhan utama dari baseline saat ini.
 
-Versi yang didokumentasikan berfokus pada **satu level dengan mode single-player**.
+## Dokumentasi
 
-Package Netcode dan Relay tersedia dalam project, tetapi fitur multiplayer aktif, lobby, dan konfigurasi layanan online belum termasuk dalam alur gameplay Level 1 yang didokumentasikan.
+- [SRS.md](SRS.md) — Software Requirements Specification
 
-## 📄 Dokumentasi
+## Informasi Project
 
-Untuk informasi lebih lengkap mengenai kebutuhan sistem, asumsi pengembangan, dan skenario pengujian, silakan baca:
-
-- [Software Requirements Specification (SRS.md)](SRS.md)
-
-## 👥 Informasi Project
-
-**Nama:** TOGETHERISH: MIND THE GAP  
-**Genre:** 2D Platformer  
-**Tema:** Lembah Es dan Petualangan  
-**Status:** Prototype  
-**Platform Pengembangan:** PC / Laptop  
-**Mode Permainan:** Single-player
+- Nama: TOGETHERISH: MIND THE GAP
+- Genre: 2D Platformer
+- Tema: Petualangan tiga dunia
+- Status: Prototype
+- Platform: PC / Laptop
+- Mode: Single-player (prototype), dengan potensi pengembangan multiplayer di masa depan
 
 ---
 
-_Dikembangkan sebagai project game untuk keperluan akademik._
+Dikembangkan untuk kebutuhan tugas UAS game development.
