@@ -16,7 +16,7 @@ Game ini dirancang sebagai prototype edukasi/akademik dengan integrasi sistem me
 - Level Select untuk Level 1 sampai Level 3
 - Platformer 2D dengan gerak kiri/kanan, lompat dasar, long jump, dan air dash
 - Sistem checkpoint dan respawn otomatis
-- Koleksi item misi: Kunci Kristal dan Relik Es
+- Koleksi item misi yang berbeda per level: Level 1 menggunakan Kunci Kristal dan Relik Es, Level 2 menggunakan Sigil Gurun dan Relik Pasir, Level 3 menggunakan Moonstone dan Relik Bulan
 - Hazard berupa duri, jatuh dari map, platform berbahaya, serta patrol hazard
 - HUD permainan yang menampilkan level, checkpoint, item, dan charge skill
 - Pause menu dan layar kemenangan
@@ -26,7 +26,7 @@ Game ini dirancang sebagai prototype edukasi/akademik dengan integrasi sistem me
 
 1. Pemain memulai dari menu utama.
 2. Pilih level atau langsung masuk Level 1.
-3. Kumpulkan Kunci Kristal dan Relik Es.
+3. Kumpulkan item utama sesuai level: Level 1 (Kunci Kristal + Relik Es), Level 2 (Sigil Gurun + Relik Pasir), Level 3 (Moonstone + Relik Bulan).
 4. Gunakan long jump dan air dash untuk melewati celah, duri, platform, dan jebakan.
 5. Jika terkena hazard, pemain akan respawn ke checkpoint terakhir.
 6. Setelah item misi lengkap, pemain mencapai EXIT untuk menyelesaikan level.

@@ -8,6 +8,11 @@ public class GameProgressManager : MonoBehaviour
     [SerializeField] private NinjaGirlController player;
     [SerializeField] private Vector3 initialSpawn;
     [SerializeField] private int totalCheckpoints = 2;
+    [SerializeField] private int levelNumber = 1;
+    [SerializeField] private string levelTitle = "ICEBOUND";
+    [SerializeField] private string nextLevelSceneName = "Level2";
+    [SerializeField] private string missionDescription =
+        "Ambil Kunci Kristal, temukan Relik Es, lalu capai EXIT!";
     [SerializeField] private Sprite crystalKeyIcon;
     [SerializeField] private Sprite iceRelicIcon;
 
@@ -15,8 +20,12 @@ public class GameProgressManager : MonoBehaviour
     private int activeCheckpoint;
     private bool respawning;
     private bool levelComplete;
+    private bool paused;
     private bool hasCrystalKey;
     private bool hasIceRelic;
+    private string objectiveOneName = "KUNCI KRISTAL";
+    private string objectiveTwoName = "RELIK ES";
+    private float pauseVolume;
     private float levelCompleteAt;
     private string noticeTitle;
     private string noticeBody;
@@ -32,6 +41,7 @@ public class GameProgressManager : MonoBehaviour
     private GUIStyle rewardTitleStyle;
     private GUIStyle victoryButtonStyle;
     private GUIStyle victorySecondaryButtonStyle;
+    private GUIStyle pauseTitleStyle;
 
     public static GameProgressManager Instance { get; private set; }
 
@@ -50,11 +60,13 @@ public class GameProgressManager : MonoBehaviour
 
     private void Start()
     {
+        ConfigureLevelObjectives();
         activeCheckpoint = 0;
         hasCrystalKey = false;
         hasIceRelic = false;
         respawning = false;
         levelComplete = false;
+        paused = false;
         Time.timeScale = 1f;
 
         if (player != null)
@@ -79,13 +91,46 @@ public class GameProgressManager : MonoBehaviour
             respawnPosition = initialSpawn;
         }
 
-        ShowNotice("MISI LEVEL 1", "Ambil Kunci Kristal, temukan Relik Es, lalu capai EXIT!", 5f);
+        ShowNotice("MISI LEVEL " + levelNumber, missionDescription, 5f);
     }
 
     private void OnDestroy()
     {
         if (Instance == this)
             Instance = null;
+    }
+
+    private void ConfigureLevelObjectives()
+    {
+        switch (levelNumber)
+        {
+            case 2:
+                objectiveOneName = "SIGIL GURUN";
+                objectiveTwoName = "RELIK PASIR";
+                missionDescription = "Ambil Sigil Gurun, temukan Relik Pasir, lalu capai EXIT!";
+                break;
+            case 3:
+                objectiveOneName = "MOONSTONE";
+                objectiveTwoName = "RELIK BULAN";
+                missionDescription = "Ambil Moonstone, temukan Relik Bulan, lalu capai EXIT!";
+                break;
+            default:
+                objectiveOneName = "KUNCI KRISTAL";
+                objectiveTwoName = "RELIK ES";
+                missionDescription = "Ambil Kunci Kristal, temukan Relik Es, lalu capai EXIT!";
+                break;
+        }
+    }
+
+    private string GetObjectiveName(int objectiveId)
+    {
+        if (objectiveId == 1)
+            return objectiveOneName;
+
+        if (objectiveId == 2)
+            return objectiveTwoName;
+
+        return objectiveId == 1 ? "KUNCI KRISTAL" : "RELIK ES";
     }
 
     public void ActivateCheckpoint(int checkpointNumber, Vector3 position, int objectiveId)
@@ -104,10 +149,13 @@ public class GameProgressManager : MonoBehaviour
         if (objectiveCollected)
         {
             player?.UnlockLongJump(checkpointNumber);
-            string skillName = checkpointNumber == 1 ? "LOMPATAN PANJANG I" : "LOMPATAN PANJANG II";
-            string itemName = objectiveId == 1 ? "KUNCI KRISTAL DIDAPAT!" : "RELIK ES DIDAPAT!";
+            string skillName = checkpointNumber == 1 ? "LOMPATAN PANJANG" : "AIR DASH";
+            string itemName = string.Format("{0} DIDAPAT!", GetObjectiveName(objectiveId));
+            string skillHint = checkpointNumber == 1
+                ? "SHIFT + LOMPAT di tanah untuk lompat jauh."
+                : "SHIFT + LOMPAT di udara untuk dash sekali sebelum mendarat.";
             ShowNotice("SKILL BARU: " + skillName,
-                itemName + "  •  SHIFT + LOMPAT untuk lompat jauh (3x/checkpoint).  " +
+                itemName + "  •  " + skillHint + "  " +
                 ObjectiveCount() + "/2 misi.", 4.5f);
         }
         else if (checkpointUpdated)
@@ -151,8 +199,8 @@ public class GameProgressManager : MonoBehaviour
             if (!levelComplete)
             {
                 string missing = !hasCrystalKey && !hasIceRelic
-                    ? "Kunci Kristal dan Relik Es masih dicari."
-                    : !hasCrystalKey ? "Kunci Kristal masih dicari." : "Relik Es masih dicari.";
+                    ? string.Format("{0} dan {1} masih dicari.", GetObjectiveName(1), GetObjectiveName(2))
+                    : !hasCrystalKey ? string.Format("{0} masih dicari.", GetObjectiveName(1)) : string.Format("{0} masih dicari.", GetObjectiveName(2));
                 ShowNotice("MISI BELUM LENGKAP", missing + " Kembali ke EXIT setelah lengkap.", 4f);
             }
             return;
@@ -171,7 +219,7 @@ public class GameProgressManager : MonoBehaviour
             }
         }
 
-        ShowNotice("SELAMAT, PETUALANG!", "Kunci Kristal dan Relik Es berhasil kamu kumpulkan!", 999f);
+        ShowNotice("SELAMAT, PETUALANG!", string.Format("{0} dan {1} berhasil kamu kumpulkan!", GetObjectiveName(1), GetObjectiveName(2)), 999f);
     }
 
     private IEnumerator RespawnAfterDeath()
@@ -202,9 +250,22 @@ public class GameProgressManager : MonoBehaviour
 
     private void Update()
     {
-        if (levelComplete && Keyboard.current != null && Keyboard.current.rKey.wasPressedThisFrame)
+        Keyboard keyboard = Keyboard.current;
+        if (keyboard == null)
+            return;
+
+        if (levelComplete && keyboard.rKey.wasPressedThisFrame)
             RestartLevel();
-        else if (levelComplete && Keyboard.current != null && Keyboard.current.mKey.wasPressedThisFrame)
+        else if (levelComplete && keyboard.mKey.wasPressedThisFrame)
+            ReturnToMainMenu();
+        else if (levelComplete && levelNumber < 3 &&
+            keyboard.nKey.wasPressedThisFrame)
+            LoadNextLevel();
+        else if (!levelComplete && (keyboard.escapeKey.wasPressedThisFrame || keyboard.pKey.wasPressedThisFrame))
+            SetPaused(!paused);
+        else if (paused && keyboard.rKey.wasPressedThisFrame)
+            RestartLevel();
+        else if (paused && keyboard.mKey.wasPressedThisFrame)
             ReturnToMainMenu();
     }
 
@@ -217,23 +278,99 @@ public class GameProgressManager : MonoBehaviour
         DrawPanel(hud, new Color(0.035f, 0.075f, 0.11f, 0.88f));
         DrawPanel(new Rect(hud.x, hud.y, 5f * scale, hud.height), new Color(0.32f, 0.9f, 0.66f, 1f));
         GUI.Label(new Rect(hud.x + 18f * scale, hud.y + 9f * scale, hud.width - 30f, 24f * scale),
-            "LEVEL 01   /   PLATFORMER", hudStyle);
+            "LEVEL " + levelNumber.ToString("00") + "   /   " + levelTitle, hudStyle);
         GUI.Label(new Rect(hud.x + 18f * scale, hud.y + 34f * scale, hud.width - 30f, 25f * scale),
             "CHECKPOINT  " + activeCheckpoint + " / " + totalCheckpoints, bodyStyle);
         GUI.Label(new Rect(hud.x + 18f * scale, hud.y + 59f * scale, hud.width - 30f, 23f * scale),
-            "KUNCI KRISTAL: " + (hasCrystalKey ? "DIDAPAT" : "BELUM DIDAPAT"), bodyStyle);
+            GetObjectiveName(1).ToUpperInvariant() + ": " + (hasCrystalKey ? "DIDAPAT" : "BELUM DIDAPAT"), bodyStyle);
         GUI.Label(new Rect(hud.x + 18f * scale, hud.y + 82f * scale, hud.width - 30f, 23f * scale),
-            "RELIK ES: " + (hasIceRelic ? "DIDAPAT" : "BELUM DIDAPAT"), bodyStyle);
+            GetObjectiveName(2).ToUpperInvariant() + ": " + (hasIceRelic ? "DIDAPAT" : "BELUM DIDAPAT"), bodyStyle);
         GUI.Label(new Rect(hud.x + 18f * scale, hud.y + 105f * scale, hud.width - 30f, 23f * scale),
             player != null && player.JumpUpgradeLevel > 0
-                ? "LONG JUMP " + player.JumpUpgradeLevel + "    " + player.LongJumpCharges + "/" + player.LongJumpsPerCheckpoint
-                : "LONG JUMP: LOCKED", bodyStyle);
+                ? "LOMPAT JAUH " + player.LongJumpCharges + "/" + player.LongJumpsPerCheckpoint +
+                  "  •  DASH " + (player.AirDashUnlocked ? player.AirDashAvailable ? "SIAP" : "PAKAI" : "LOCKED")
+                : "SKILL: LOCKED", bodyStyle);
 
         if (Time.unscaledTime < noticeUntil)
             DrawNotice(scale);
 
         if (levelComplete)
             DrawVictory(scale);
+        else if (paused)
+            DrawPauseMenu(scale);
+    }
+
+    private void DrawPauseMenu(float scale)
+    {
+        DrawPanel(new Rect(0f, 0f, Screen.width, Screen.height), new Color(0.012f, 0.025f, 0.045f, 0.78f));
+
+        float width = Mathf.Min(510f * scale, Screen.width - 32f);
+        float height = 420f * scale;
+        Rect panel = new Rect((Screen.width - width) * 0.5f, (Screen.height - height) * 0.5f, width, height);
+        DrawPanel(new Rect(panel.x + 7f * scale, panel.y + 8f * scale, panel.width, panel.height),
+            new Color(0f, 0f, 0f, 0.32f));
+        DrawPanel(panel, new Color(0.035f, 0.075f, 0.11f, 0.98f));
+        DrawPanel(new Rect(panel.x, panel.y, panel.width, 5f * scale), new Color(0.38f, 0.9f, 0.8f));
+
+        float padding = 30f * scale;
+        float contentX = panel.x + padding;
+        float contentWidth = panel.width - padding * 2f;
+        GUI.Label(new Rect(contentX, panel.y + 22f * scale, contentWidth, 24f * scale),
+            "GAME PAUSED   /   LEVEL " + levelNumber.ToString("00"), victoryKickerStyle);
+        GUI.Label(new Rect(contentX, panel.y + 48f * scale, contentWidth, 48f * scale),
+            "ISTIRAHAT SEJENAK", pauseTitleStyle);
+
+        float buttonHeight = 46f * scale;
+        float buttonGap = 11f * scale;
+        float buttonY = panel.y + 112f * scale;
+        if (GUI.Button(new Rect(contentX, buttonY, contentWidth, buttonHeight),
+                "LANJUTKAN   [ESC]", victoryButtonStyle))
+            SetPaused(false);
+        buttonY += buttonHeight + buttonGap;
+        if (GUI.Button(new Rect(contentX, buttonY, contentWidth, buttonHeight),
+                "ULANGI LEVEL   [R]", victorySecondaryButtonStyle))
+            RestartLevel();
+        buttonY += buttonHeight + 10f * scale;
+
+        GUI.Label(new Rect(contentX, buttonY, contentWidth, 22f * scale),
+            "VOLUME   " + Mathf.RoundToInt(AudioListener.volume * 100f) + "%", bodyStyle);
+        pauseVolume = GUI.HorizontalSlider(
+            new Rect(contentX, buttonY + 25f * scale, contentWidth, 18f * scale),
+            pauseVolume, 0f, 1f);
+        AudioListener.volume = pauseVolume;
+        buttonY += 54f * scale;
+
+        GUI.Label(new Rect(contentX, buttonY, contentWidth, 36f * scale),
+            "A/D atau ←/→ bergerak    •    SPACE melompat    •    SHIFT + lompat skill", centerBodyStyle);
+        buttonY += 42f * scale;
+        if (GUI.Button(new Rect(contentX, buttonY, contentWidth, buttonHeight),
+                "KEMBALI KE MENU   [M]", victorySecondaryButtonStyle))
+            ReturnToMainMenu();
+
+        GUI.Label(new Rect(contentX, panel.y + panel.height - 25f * scale, contentWidth, 18f * scale),
+            "Tekan ESC atau P untuk melanjutkan", victoryKickerStyle);
+    }
+
+    private void SetPaused(bool shouldPause)
+    {
+        if (levelComplete || respawning || paused == shouldPause)
+            return;
+
+        paused = shouldPause;
+        if (player != null)
+            player.enabled = !paused;
+
+        if (paused)
+        {
+            pauseVolume = AudioListener.volume;
+            Time.timeScale = 0f;
+        }
+        else
+        {
+            Time.timeScale = 1f;
+            PlayerPrefs.SetFloat("level1.masterVolume", AudioListener.volume);
+            PlayerPrefs.Save();
+        }
     }
 
     private void DrawNotice(float scale)
@@ -267,11 +404,11 @@ public class GameProgressManager : MonoBehaviour
         float contentX = panel.x + padding;
         float contentWidth = panel.width - padding * 2f;
         GUI.Label(new Rect(contentX, panel.y + 20f * scale, contentWidth, 23f * scale),
-            "LEVEL 01   /   MISSION COMPLETE", victoryKickerStyle);
+            "LEVEL " + levelNumber.ToString("00") + "   /   MISSION COMPLETE", victoryKickerStyle);
         GUI.Label(new Rect(contentX, panel.y + 45f * scale, contentWidth, 50f * scale),
             "SELAMAT, PETUALANG!", victoryTitleStyle);
         GUI.Label(new Rect(contentX, panel.y + 96f * scale, contentWidth, 28f * scale),
-            "Kamu berhasil menaklukkan Lembah Kristal.", victoryBodyStyle);
+            "Kamu berhasil menaklukkan " + levelTitle + ".", victoryBodyStyle);
         DrawPanel(new Rect(contentX, panel.y + 132f * scale, contentWidth, 1f),
             new Color(0.55f, 0.71f, 0.76f, 0.38f));
 
@@ -280,9 +417,9 @@ public class GameProgressManager : MonoBehaviour
         float cardY = panel.y + 147f * scale;
         float cardHeight = 78f * scale;
         DrawRewardCard(new Rect(contentX, cardY, cardWidth, cardHeight),
-            "RELIC 01", "KUNCI KRISTAL", crystalKeyIcon, new Color(1f, 0.72f, 0.25f));
+            "OBJECTIVE 01", GetObjectiveName(1).ToUpperInvariant(), crystalKeyIcon, new Color(1f, 0.72f, 0.25f));
         DrawRewardCard(new Rect(contentX + cardWidth + gap, cardY, cardWidth, cardHeight),
-            "RELIC 02", "RELIK ES", iceRelicIcon, new Color(0.34f, 0.82f, 1f));
+            "OBJECTIVE 02", GetObjectiveName(2).ToUpperInvariant(), iceRelicIcon, new Color(0.34f, 0.82f, 1f));
 
         Rect skillBanner = new Rect(contentX, panel.y + 237f * scale, contentWidth, 43f * scale);
         DrawPanel(skillBanner, new Color(0.12f, 0.25f, 0.27f, 0.95f));
@@ -290,7 +427,9 @@ public class GameProgressManager : MonoBehaviour
             new Color(0.38f, 0.9f, 0.8f));
         GUI.Label(new Rect(skillBanner.x + 14f * scale, skillBanner.y + 4f * scale,
             skillBanner.width - 28f * scale, 34f * scale),
-            "SKILL DIBUKA  •  LOMPATAN PANJANG II", victoryKickerStyle);
+            player != null && player.AirDashUnlocked
+                ? "SKILL DIBUKA  •  AIR DASH"
+                : "SKILL DIBUKA  •  LOMPATAN PANJANG", victoryKickerStyle);
 
         float buttonY = panel.y + 294f * scale;
         float buttonGap = 12f * scale;
@@ -298,12 +437,22 @@ public class GameProgressManager : MonoBehaviour
         if (GUI.Button(new Rect(contentX, buttonY, buttonWidth, 46f * scale),
                 "MAIN LAGI   [R]", victoryButtonStyle))
             RestartLevel();
+        string nextButtonLabel = levelNumber < 3
+            ? "LEVEL BERIKUTNYA   [N]"
+            : "SELESAI   [M]";
         if (GUI.Button(new Rect(contentX + buttonWidth + buttonGap, buttonY, buttonWidth, 46f * scale),
+                nextButtonLabel, victorySecondaryButtonStyle))
+        {
+            if (levelNumber < 3)
+                LoadNextLevel();
+            else
+                ReturnToMainMenu();
+        }
+
+        if (levelNumber < 3 &&
+            GUI.Button(new Rect(contentX, panel.y + 348f * scale, contentWidth, 40f * scale),
                 "MENU UTAMA   [M]", victorySecondaryButtonStyle))
             ReturnToMainMenu();
-
-        GUI.Label(new Rect(contentX, panel.y + 354f * scale, contentWidth, 20f * scale),
-            "TERIMA KASIH SUDAH BERMAIN", victoryKickerStyle);
     }
 
     private void DrawRewardCard(Rect rect, string category, string title, Sprite icon, Color accent)
@@ -353,13 +502,30 @@ public class GameProgressManager : MonoBehaviour
 
     private void RestartLevel()
     {
+        paused = false;
         Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
+    private void LoadNextLevel()
+    {
+        paused = false;
+        if (levelNumber >= 3)
+        {
+            ReturnToMainMenu();
+            return;
+        }
+
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(nextLevelSceneName);
+    }
+
     private void ReturnToMainMenu()
     {
+        paused = false;
         Time.timeScale = 1f;
+        PlayerPrefs.SetFloat("level1.masterVolume", AudioListener.volume);
+        PlayerPrefs.Save();
         SceneManager.LoadScene("Main Menu");
     }
 
@@ -460,6 +626,11 @@ public class GameProgressManager : MonoBehaviour
             normal = { textColor = new Color(0.89f, 0.94f, 0.96f), background = MakeSolidTexture(new Color(0.1f, 0.18f, 0.24f)) },
             hover = { textColor = Color.white, background = MakeSolidTexture(new Color(0.17f, 0.29f, 0.34f)) },
             active = { textColor = Color.white, background = MakeSolidTexture(new Color(0.13f, 0.24f, 0.3f)) }
+        };
+        pauseTitleStyle = new GUIStyle(victoryTitleStyle)
+        {
+            fontSize = 30,
+            normal = { textColor = Color.white }
         };
     }
 }

@@ -19,7 +19,7 @@ Dokumen ini mendefinisikan kebutuhan fungsional dan nonfungsional untuk game **T
 
 ### 1.2 Cakupan Produk
 
-Produk adalah game platformer 2D yang menampilkan tiga level dengan tema berbeda: Icebound, Dune Runner, dan Moonlit Mushroom Citadel. Pemain mengendalikan karakter Ninja Girl untuk mengumpulkan Kunci Kristal dan Relik Es, membuka kemampuan Long Jump dan Air Dash, menghindari jebakan, dan mencapai gerbang EXIT di tiap level.
+Produk adalah game platformer 2D yang menampilkan tiga level dengan tema berbeda: Icebound, Dune Runner, dan Moonlit Mushroom Citadel. Pemain mengendalikan karakter Ninja Girl untuk mengumpulkan item utama yang berbeda per level—Level 1 menggunakan Kunci Kristal dan Relik Es, Level 2 menggunakan Sigil Gurun dan Relik Pasir, serta Level 3 menggunakan Moonstone dan Relik Bulan—sebelum membuka kemampuan Long Jump dan Air Dash, menghindari jebakan, dan mencapai gerbang EXIT di tiap level.
 
 Project ini juga memuat sampel jaringan Unity Netcode (`NetworkCatPlayer.cs`) sebagai fondasi pengembangan multiplayer masa depan, namun fitur online tidak ditetapkan sebagai kebutuhan utama dari baseline saat ini.
 
@@ -160,7 +160,7 @@ Prioritas: P1 = wajib, P2 = penting, P3 = bisa ditunda.
 
 - FR-017 (P1): Hazard seperti duri dan fall reset harus memicu respawn ke checkpoint terakhir.
 - FR-018 (P1): Setelah respawn, progres item dan skill yang sudah didapat harus tetap tersimpan dalam sesi berjalan.
-- FR-019 (P1): Player tidak boleh menyelesaikan level sebelum Kunci Kristal dan Relik Es terkumpul.
+- FR-019 (P1): Player tidak boleh menyelesaikan level sebelum item utama level yang aktif terkumpul, dengan variasi nama item sesuai level: Level 1 (Kunci Kristal dan Relik Es), Level 2 (Sigil Gurun dan Relik Pasir), Level 3 (Moonstone dan Relik Bulan).
 - FR-020 (P1): Saat menyentuh EXIT dengan misi lengkap, game menampilkan kondisi victory.
 - FR-021 (P1): Setelah menang, pemain dapat memilih ulang level atau kembali ke menu utama.
 - FR-022 (P2): Sistem harus menampilkan notifikasi yang menjelaskan status misi dan skill baru.
